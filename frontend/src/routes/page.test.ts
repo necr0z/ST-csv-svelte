@@ -6,29 +6,29 @@ import '@testing-library/jest-dom';
 import Page from './+page.svelte';
 
 describe('My Page', () => {
-  it('shows "No file selected" if user clicks Upload with no file chosen', async () => {
-    render(Page);
+	it('shows "No file selected" if user clicks Upload with no file chosen', async () => {
+		// 1) Render the page
+		render(Page);
 
-    // 1) Click "Upload" with no file
-    const uploadBtn = screen.getByTestId('uploadBtn');
-    await fireEvent.click(uploadBtn);
+		// 2) Click "Upload" with no file
+		const uploadBtn = screen.getByTestId('uploadBtn');
+		await fireEvent.click(uploadBtn);
 
-    // 2) Check the message
-    const msg = screen.getByTestId('uploadMessage');
-    expect(msg).toHaveTextContent('No file selected');
-  });
+		// 3) Check the message
+		const msg = screen.getByTestId('uploadMessage');
+		expect(msg).toHaveTextContent('No file selected');
+	});
 
-  it('updates search display on input', async () => {
-    render(Page);
+	it('updates search display on typing into search input', async () => {
+		// 1) Render the page
+		render(Page);
 
-    // 1) Type into the search input
-    const searchInput = screen.getByTestId('searchInput') as HTMLInputElement;
-    const display = screen.getByTestId('searchDisplay');
-    expect(display).toHaveTextContent('Search: '); // initially empty
+		// 2) Type "Hello" into data-testid="searchInput"
+		const searchInput = screen.getByTestId('searchInput') as HTMLInputElement;
+		await fireEvent.input(searchInput, { target: { value: 'Hello' } });
 
-    await fireEvent.input(searchInput, { target: { value: 'Hello' } });
-
-    // 2) The display text should update
-    expect(display).toHaveTextContent('Search: Hello');
-  });
+		// 3) The display text should update
+		const display = screen.getByTestId('searchDisplay');
+		expect(display).toHaveTextContent('Search: Hello');
+	});
 });

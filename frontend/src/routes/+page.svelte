@@ -1,3 +1,4 @@
+<!-- src/routes/+page.svelte -->
 <script lang="ts">
   import { onMount } from 'svelte';
   import { Button } from '$lib/components/ui/button';
@@ -58,6 +59,7 @@
     }
   }
 
+  // This Input is a custom component that dispatches on:change with { files }
   function handleFileChange(e: CustomEvent<{ files: FileList | null }>) {
     const files = e.detail.files;
     if (files && files.length > 0) {
@@ -84,13 +86,13 @@
     currentPage = json.currentPage;
   }
 
-  // Real-time text input
+  // Real-time text input from a custom <TextInput on:input={...}/>
   function handleTextInput(e: CustomEvent<{ value: string }>) {
     searchQuery = e.detail.value;
     fetchData(1, searchQuery);
   }
 
-  // Manual search button approach (initial approach)
+  // Manual search button approach
   function handleSearch() {
     fetchData(1, searchQuery);
   }
@@ -112,21 +114,38 @@
   });
 </script>
 
-<!-- Page UI -->
 <h1 class="text-2xl font-bold mb-4">CSV Uploader & Data Listing</h1>
 
 <!-- Upload Section -->
 <div class="border p-4 mb-6 rounded">
   <h2 class="text-lg font-semibold mb-2">Upload CSV</h2>
+
   <div class="flex items-center gap-2">
-    <Input type="file" on:change={handleFileChange} />
-    <Button on:click={handleUpload} disabled={isUploading}>
-      {#if isUploading} Uploading... {:else} Upload {/if}
+    <!-- Add data-testid so test can find file input -->
+    <Input
+      data-testid="fileInput"
+      type="file"
+      on:change={handleFileChange}
+    />
+
+    <Button
+      data-testid="uploadBtn"
+      on:click={handleUpload}
+      disabled={isUploading}
+    >
+      {#if isUploading}
+        Uploading...
+      {:else}
+        Upload
+      {/if}
     </Button>
   </div>
 
   {#if uploadMessage}
-    <p class="mt-2 text-sm text-gray-800">{uploadMessage}</p>
+    <!-- data-testid for testing "No file selected" etc. -->
+    <p data-testid="uploadMessage" class="mt-2 text-sm text-gray-800">
+      {uploadMessage}
+    </p>
   {/if}
 </div>
 
@@ -136,17 +155,33 @@
 
   <!-- Manual search approach -->
   <div class="flex gap-2 mb-4">
-    <Input type="text" placeholder="Search..." bind:value={searchQuery} />
+    <!-- data-testid="searchInput" so test can do fireEvent.input(...) -->
+    <Input
+      data-testid="searchInput"
+      type="text"
+      placeholder="Search..."
+      bind:value={searchQuery}
+    />
     <Button on:click={handleSearch}>Search</Button>
   </div>
 
   <!-- Real-time search approach via text input -->
   <div class="flex gap-2 mb-4">
-    <TextInput class="font-semibold"
+    <!-- This <TextInput> dispatches "input" with e.detail.value -->
+    <TextInput
+      class="font-semibold"
       placeholder="The much cooler LIVE search..."
       on:input={handleTextInput}
     />
   </div>
+
+  <!-- For testing: show the actual searchQuery so we can confirm it's updated -->
+  <p
+    data-testid="searchDisplay"
+    class="text-sm text-blue-500 mb-4"
+  >
+    Search: {searchQuery}
+  </p>
 
   <!-- Table -->
   <Table.Root class="min-w-[600px] w-full mb-4">

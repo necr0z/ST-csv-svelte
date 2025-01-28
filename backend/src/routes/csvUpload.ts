@@ -37,16 +37,6 @@ router.post(
       fs.createReadStream(filePath)
         .pipe(csvParser())
         .on("data", (row) => {
-          /**
-           * row might look like:
-           * {
-           *   postId: "1",
-           *   id: "1",
-           *   name: "some name",
-           *   email: "someone@example.com",
-           *   body: "some comment"
-           * }
-           */
           const csvId = row.id ? parseInt(row.id, 10) : undefined;
           const postId = row.postId ? parseInt(row.postId, 10) : null;
 
