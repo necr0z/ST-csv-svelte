@@ -1,0 +1,41 @@
+version: '3.8'
+services:
+  # 1) Postgres DB
+  postgres:
+    image: postgres:15
+    container_name: my-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mydb
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  # 2) Backend (Node + Express + Prisma)
+  backend:
+    build: ./backend
+    container_name: my-backend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    environment:
+      # Adjust to match your .env if needed
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/mydb
+    # If you want to run migrations at startup:
+    command: sh -c "npx prisma migrate deploy && node dist/server.js"
+
+  # 3) Frontend (SvelteKit)
+  frontend:
+    build: ./frontend
+    container_name: my-frontend
+    ports:
+      - "4173:4173"
+    depends_on:
+      - backend
+   
+
+volumes:
+  db_data:
